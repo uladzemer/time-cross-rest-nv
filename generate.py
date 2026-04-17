@@ -270,7 +270,7 @@ def encrypt_payload(payload: dict, password: str) -> dict:
 def main() -> int:
     # Используем `or`, чтобы пустая строка из ENV (например пустой GitHub
     # Secret) тоже попадала в дефолт, а не использовалась как пароль "".
-    dad_password = os.environ.get("SITE_PASSWORD_DAD") or "0000"
+    dad_password = os.environ.get("SITE_PASSWORD_DAD") or "1133"
     mom_password = os.environ.get("SITE_PASSWORD_MOM") or "0808"
     print(f"Пароли: папа({len(dad_password)} симв.), мама({len(mom_password)} симв.)")
 
