@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Графики Наташи и Вовы</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="gate" class="screen">
+  <form id="gate-form" class="gate-card">
+    <h1>Доступ закрыт</h1>
+    <p>Введите пароль, чтобы посмотреть расписание.</p>
+    <input id="password" type="password" inputmode="numeric" autocomplete="current-password" autofocus>
+    <button type="submit">Войти</button>
+    <div id="gate-error" class="error" hidden>Неверный пароль</div>
+    <div id="gate-status" class="status"></div>
+  </form>
+</div>
+
+<div id="app" class="screen" hidden>
+  <header>
+    <div>
+      <h1>Графики Наташи и Вовы</h1>
+      <div class="meta">
+        Обновлено: <span id="generated-at">—</span> ·
+        Горизонт: <span id="horizon">—</span> дней ·
+        Часовой пояс: <span id="tz">—</span>
+      </div>
+    </div>
+    <button id="lock-btn" type="button" title="Заблокировать">🔒</button>
+  </header>
+
+  <section class="legend">
+    <span class="dot red"></span> жёсткое — нужна тёща (или отменять работу)
+    <span class="dot yellow"></span> мягкое — можно забрать/привезти дочку
+    <span class="dot green"></span> Наташа на смене, Вова с дочкой дома
+    <span class="dot free"></span> у обоих свободный день
+  </section>
+
+  <section id="summary" class="summary"></section>
+
+  <section id="days" class="days"></section>
+
+  <footer>
+    Защита паролем — обфускация уровня «не для случайного зрителя».
+    Расшифровка происходит в браузере.
+  </footer>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

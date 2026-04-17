@@ -1,0 +1,19 @@
+# Сгенерированный зашифрованный блок (создаётся скриптом или Action)
+docs/data.enc.json
+
+# Тесты загрузок
+*.ics
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
