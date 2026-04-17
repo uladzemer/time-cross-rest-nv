@@ -73,6 +73,26 @@ PBKDF2-HMAC-SHA256 (200 000 итераций) → AES-GCM. Это **обфуск
 
 6. **На Windows для `zoneinfo` нужен пакет `tzdata`**. У Python нет встроенной базы таймзон, поэтому в `requirements`-сетапе и в README-инструкции указано `pip install cryptography tzdata`.
 
+7. **Пустой GitHub Secret ≠ «нет значения»**. Если задать secret без значения (или со строкой только из пробелов), `os.environ.get("VAR", "default")` вернёт `""`, а НЕ `"default"` — второй аргумент срабатывает только если переменной вообще нет в окружении. В `generate.py` поэтому везде используется паттерн `os.environ.get("VAR") or "default"`, чтобы falsy-значения (None и "") одинаково падали в дефолт. Симптом, если забыть: блобы на проде шифруются пустой строкой, ни один нормальный пароль не подходит, в интерфейсе «неверный пароль» без внятной причины. Диагностировать только через локальный perebor `hashlib.pbkdf2_hmac` против скачанного live-блоба.
+
+### Как искать, каким паролем зашифрован live-блоб
+Если вдруг пароли не работают — локально перебрать по скачанному файлу:
+```python
+import json, base64, hashlib
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+blob = json.loads(open("live.json").read())
+for pwd in ["0000","1133","0808","",...]:
+    try:
+        key = hashlib.pbkdf2_hmac("sha256", pwd.encode(),
+            base64.b64decode(blob["salt"]), blob["iterations"], 32)
+        AESGCM(key).decrypt(base64.b64decode(blob["iv"]),
+            base64.b64decode(blob["ciphertext"]), None)
+        print(f"OK: {pwd!r}")
+    except Exception:
+        pass
+```
+Полезно проверять `""` — именно это симптом пустого GitHub Secret.
+
 ### Развёртывание
 
 GitHub Actions деплоит `docs/` в Pages. Workflow читает секреты `SITE_PASSWORD_DAD` и `SITE_PASSWORD_MOM`. Если секретов нет — берутся дефолты `1133` / `0808` из `generate.py`.
