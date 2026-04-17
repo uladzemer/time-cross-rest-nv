@@ -25,7 +25,7 @@ cd docs && python -m http.server 8765
 # Открыть http://localhost:8765/ , пароль "1131"
 ```
 
-Пароль читается из ENV `SITE_PASSWORD`, по умолчанию `1131`.
+Пароль читается из ENV `SITE_PASSWORD`, по умолчанию `0000`.
 
 ## Развёртывание на GitHub Pages
 
@@ -43,7 +43,8 @@ cd docs && python -m http.server 8765
    - **Settings → Pages → Build and deployment → Source = GitHub Actions**
    - **Settings → Secrets and variables → Actions → New repository secret**
      - Name: `SITE_PASSWORD`
-     - Value: `1131` (или любой другой)
+     - Value: `0000` (или любой другой)
+   - Если secret не задать — будет использован дефолт `0000` из `generate.py`
 4. Зайди в **Actions → "Update and deploy dashboard" → Run workflow** для первого деплоя
 5. После завершения workflow ссылка появится в `Actions → последний запуск → deploy → Page URL`. Обычно это `https://<username>.github.io/time-cross-rest-nv/`
 

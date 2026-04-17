@@ -193,9 +193,10 @@ def classify_days(natasha: list[Event], vova: list[Event]) -> list[dict]:
         if n_shifts and overlaps:
             status = "red" if any(o["hard"] for o in overlaps) else "yellow"
         elif n_shifts and not overlaps:
-            status = "green"  # Наташа работает, Вова свободен → Вова с дочкой
+            status = "green"     # Наташа работает, Вова свободен → Вова с дочкой
         elif v_events and not n_shifts:
-            status = "free"   # Вова работает, Наташа свободна — нет проблемы
+            status = "vova_only" # Вова работает, Наташа дома с дочкой
+        # else: оставляем "free" (оба свободны)
 
         days_out.append({
             "date": cur.isoformat(),
@@ -267,7 +268,7 @@ def encrypt_payload(payload: dict, password: str) -> dict:
 
 
 def main() -> int:
-    password = os.environ.get("SITE_PASSWORD", "1131")
+    password = os.environ.get("SITE_PASSWORD", "0000")
     print(f"Используется пароль длиной {len(password)} символов "
           f"(значение из ENV {'есть' if 'SITE_PASSWORD' in os.environ else 'нет, fallback'})")
 
@@ -281,7 +282,7 @@ def main() -> int:
     print(f"Распарсено событий: Наташа={len(natasha_events)}, Вова={len(vova_events)}")
 
     days = classify_days(natasha_events, vova_events)
-    counts = {"red": 0, "yellow": 0, "green": 0, "free": 0}
+    counts = {"red": 0, "yellow": 0, "green": 0, "vova_only": 0, "free": 0}
     for d in days:
         counts[d["status"]] += 1
     print(f"Дней по статусам: {counts}")

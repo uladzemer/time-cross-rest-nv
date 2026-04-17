@@ -17,3 +17,9 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# Node (if local testing with playwright)
+node_modules/
+package.json
+package-lock.json
+test_*.mjs

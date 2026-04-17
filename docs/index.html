@@ -10,10 +10,22 @@
 <body>
 
 <div id="gate" class="screen">
-  <form id="gate-form" class="gate-card">
+  <form id="gate-form" class="gate-card" action="javascript:void(0)">
     <h1>Доступ закрыт</h1>
     <p>Введите пароль, чтобы посмотреть расписание.</p>
-    <input id="password" type="password" inputmode="numeric" autocomplete="current-password" autofocus>
+    <input
+      id="password"
+      type="password"
+      name="tcrnv-pin"
+      inputmode="numeric"
+      autocomplete="off"
+      autocorrect="off"
+      spellcheck="false"
+      data-form-type="other"
+      data-lpignore="true"
+      data-1p-ignore="true"
+      data-bwignore="true"
+      autofocus>
     <button type="submit">Войти</button>
     <div id="gate-error" class="error" hidden>Неверный пароль</div>
     <div id="gate-status" class="status"></div>
@@ -30,19 +42,37 @@
         Часовой пояс: <span id="tz">—</span>
       </div>
     </div>
-    <button id="lock-btn" type="button" title="Заблокировать">🔒</button>
+    <div class="header-actions">
+      <button id="settings-btn" type="button" title="Настройка названий">⚙</button>
+      <button id="lock-btn" type="button" title="Заблокировать">🔒</button>
+    </div>
   </header>
 
-  <section class="legend">
-    <span class="dot red"></span> жёсткое — нужна тёща (или отменять работу)
-    <span class="dot yellow"></span> мягкое — можно забрать/привезти дочку
-    <span class="dot green"></span> Наташа на смене, Вова с дочкой дома
-    <span class="dot free"></span> у обоих свободный день
-  </section>
+  <section id="legend" class="legend"></section>
 
   <section id="summary" class="summary"></section>
 
-  <section id="days" class="days"></section>
+  <nav class="month-nav" id="month-nav" hidden>
+    <button id="prev-month" type="button" aria-label="Предыдущий месяц">‹</button>
+    <h2 id="month-title">—</h2>
+    <button id="next-month" type="button" aria-label="Следующий месяц">›</button>
+  </nav>
+
+  <section id="months" class="months"></section>
+  <div id="tooltip" role="tooltip"></div>
+
+  <div id="settings-modal" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-labelledby="settings-title">
+      <h2 id="settings-title">Названия статусов</h2>
+      <p class="modal-hint">Меняй на удобные тебе формулировки. Сохраняется в этом браузере.</p>
+      <form id="settings-form" class="settings-list"></form>
+      <div class="modal-actions">
+        <button type="button" id="settings-reset" class="btn-ghost">Сбросить всё</button>
+        <button type="button" id="settings-cancel" class="btn-ghost">Отмена</button>
+        <button type="button" id="settings-save" class="btn-primary">Сохранить</button>
+      </div>
+    </div>
+  </div>
 
   <footer>
     Защита паролем — обфускация уровня «не для случайного зрителя».
