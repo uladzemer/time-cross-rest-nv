@@ -268,9 +268,9 @@ def encrypt_payload(payload: dict, password: str) -> dict:
 
 
 def main() -> int:
-    password = os.environ.get("SITE_PASSWORD", "0000")
-    print(f"Используется пароль длиной {len(password)} символов "
-          f"(значение из ENV {'есть' if 'SITE_PASSWORD' in os.environ else 'нет, fallback'})")
+    dad_password = os.environ.get("SITE_PASSWORD_DAD", "1133")
+    mom_password = os.environ.get("SITE_PASSWORD_MOM", "0808")
+    print(f"Пароли: папа({len(dad_password)} симв.), мама({len(mom_password)} симв.)")
 
     print("Скачиваю календарь Наташи...")
     natasha_ics = fetch(NATASHA_ICS)
@@ -296,11 +296,13 @@ def main() -> int:
     }
 
     OUT_DIR.mkdir(exist_ok=True)
-    enc = encrypt_payload(payload, password)
-    (OUT_DIR / "data.enc.json").write_text(
-        json.dumps(enc, separators=(",", ":")), encoding="utf-8"
-    )
-    print(f"Зашифрованный блок записан: {OUT_DIR / 'data.enc.json'}")
+    # Шифруем одни и те же данные ДВУМЯ паролями. Фронт определит роль
+    # по тому, какой файл успешно расшифровался.
+    for role, password in [("dad", dad_password), ("mom", mom_password)]:
+        enc = encrypt_payload(payload, password)
+        out = OUT_DIR / f"data.{role}.enc.json"
+        out.write_text(json.dumps(enc, separators=(",", ":")), encoding="utf-8")
+        print(f"Записан {out}")
     return 0
 
 

@@ -31,7 +31,8 @@ jobs:
 
       - name: Generate encrypted dashboard data
         env:
-          SITE_PASSWORD: ${{ secrets.SITE_PASSWORD }}
+          SITE_PASSWORD_DAD: ${{ secrets.SITE_PASSWORD_DAD }}
+          SITE_PASSWORD_MOM: ${{ secrets.SITE_PASSWORD_MOM }}
         run: python generate.py
 
       - name: Upload Pages artifact

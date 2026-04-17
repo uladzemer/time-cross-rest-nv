@@ -193,8 +193,8 @@ function buildTooltipContent(day) {
     ),
   ];
 
-  // Переключатель «Могу/не могу посидеть» — только в дни смен Наташи.
-  if (hasNatasha) {
+  // Переключатель «Могу/не могу посидеть» — только папа в дни смен Наташи.
+  if (hasNatasha && currentRole === "dad") {
     const canSit = availability[day.date] === true;
     const toggleBtn = el("button", {
       type: "button",
@@ -492,25 +492,54 @@ function reapplyLabels() {
 // --- Auth flow --------------------------------------------------------------
 
 const STORAGE_KEY = "tcrnv:password";
-let cachedBlob = null;
+const ROLE_KEY = "tcrnv:role";
 
-async function loadBlob() {
-  if (cachedBlob) return cachedBlob;
-  const resp = await fetch("data.enc.json", { cache: "no-store" });
-  if (!resp.ok) throw new Error("Не удалось загрузить data.enc.json");
-  cachedBlob = await resp.json();
-  return cachedBlob;
+let currentRole = null; // "dad" | "mom"
+
+const blobCache = {}; // { dad: blob, mom: blob }
+
+async function loadBlob(role) {
+  if (blobCache[role]) return blobCache[role];
+  const resp = await fetch(`data.${role}.enc.json`, { cache: "no-store" });
+  if (!resp.ok) throw new Error(`Не удалось загрузить data.${role}.enc.json`);
+  blobCache[role] = await resp.json();
+  return blobCache[role];
 }
 
+// Пробуем оба пароля; по успеху возвращаем { payload, role }
 async function tryUnlock(password) {
-  const blob = await loadBlob();
-  return decryptPayload(blob, password);
+  for (const role of ["dad", "mom"]) {
+    try {
+      const blob = await loadBlob(role);
+      const payload = await decryptPayload(blob, password);
+      return { payload, role };
+    } catch {
+      // следующая попытка
+    }
+  }
+  const err = new Error("Неверный пароль");
+  err.name = "OperationError";
+  throw err;
 }
 
-async function showApp(payload) {
+async function showApp(result) {
+  // Принимает либо новый формат { payload, role }, либо просто payload (legacy)
+  const payload = result.payload || result;
+  const role = result.role || currentRole || "dad";
+  currentRole = role;
+  applyRoleUI(role);
   $("#gate").hidden = true;
   $("#app").hidden = false;
   renderDashboard(payload);
+}
+
+function applyRoleUI(role) {
+  document.body.dataset.role = role;
+  const badge = $("#role-badge");
+  if (badge) {
+    badge.textContent = role === "dad" ? "👨 Папа" : "👩 Мама";
+    badge.className = `role-badge role-${role}`;
+  }
 }
 
 function showGate() {
@@ -564,10 +593,11 @@ function init() {
     $("#gate-error").hidden = true;
     console.log("[gate] trying password, length =", pass.length);
     try {
-      const payload = await tryUnlock(pass);
+      const result = await tryUnlock(pass);
       sessionStorage.setItem(STORAGE_KEY, pass);
+      sessionStorage.setItem(ROLE_KEY, result.role);
       status.textContent = "";
-      await showApp(payload);
+      await showApp(result);
     } catch (err) {
       console.error("[gate] decrypt failed:", err, "input length was", pass.length);
       status.textContent = "";
